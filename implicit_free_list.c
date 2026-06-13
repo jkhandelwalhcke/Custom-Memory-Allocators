@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> // To use sbrk
+#include<string.h> //to use memcpy
 
 /* Primary macros */
 #define WSIZE       4       /* word / header/footer size in bytes */
@@ -185,7 +186,7 @@ void *mm_malloc(size_t size) {
         return bp;
     }
 
-    /* No fit found. Get more memory and place the block */
+    // No fit found. Get more memory and place the block 
     extendsize = MAX(asize, CHUNKSIZE);
     if ((bp = extend_heap(extendsize / WSIZE)) == NULL) {
         return NULL;
@@ -194,3 +195,52 @@ void *mm_malloc(size_t size) {
     return bp;
 }
 
+/* mm_free - Frees a block and use boundary-tag coalescing to merge it with any adjacent free blocks in constant time. */
+void mm_free(void *bp) {
+    if (bp == NULL) {
+        return;
+    }
+
+    size_t size = GET_SIZE(HDRP(bp));
+
+    // Reset the allocation bit to 0 in both header and footer 
+    PUT(HDRP(bp), PACK(size, 0));
+    PUT(FTRP(bp), PACK(size, 0));
+
+    // Immediately coalesce the block with its neighbors 
+    coalesce(bp);
+}
+
+// mm_realloc - Simple implementation of realloc using malloc and free. 
+void *mm_realloc(void *ptr, size_t size) {
+    void *oldptr = ptr;
+    void *newptr;
+    size_t copySize;
+    
+    /* If size == 0, equivalent to free */
+    if (size == 0) {
+        mm_free(ptr);
+        return NULL;
+    }
+
+    /* If oldptr is NULL, equivalent to malloc */
+    if (oldptr == NULL) {
+        return mm_malloc(size);
+    }
+
+    newptr = mm_malloc(size);
+    if (newptr == NULL) {
+        return NULL;
+    }
+
+    /* Copy old payload data, excluding header/footer overhead */
+    copySize = GET_SIZE(HDRP(oldptr)) - DSIZE;
+    if (size < copySize) {
+        copySize = size;
+    }
+    memcpy(newptr, oldptr, copySize);
+    
+    /* Free the old block */
+    mm_free(oldptr);
+    return newptr;
+}
