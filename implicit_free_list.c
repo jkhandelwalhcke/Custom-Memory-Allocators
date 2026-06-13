@@ -32,6 +32,7 @@
 
 /* Global variables */
 static char *heap_listp = 0;  /* Pointer to first block */
+static char *rover;           /* Next fit rover */
 
 /* Declarations for helper functions */
 static void *extend_heap(size_t words);
@@ -60,6 +61,7 @@ int mm_init(void) {
         return -1;
     }
     
+    rover = heap_listp;
     return 0;
 }
 
@@ -114,6 +116,81 @@ static void *coalesce(void *bp) {
         bp = PREV_BLKP(bp);
     }
     
+    /* Ensure rover isn't left pointing into a coalesced free block, which would cause a seg_fault with the next malloc call */
+    if ((rover > (char *)bp) && (rover < NEXT_BLKP(bp))) {
+        rover = bp;
+    }
+    return bp;
+}
+
+/* find_fit - Perform a next-fit search of the implicit free list */
+static void *find_fit(size_t asize) {
+    char *oldrover = rover;
+
+    /* Searching from the rover to the end of list */
+    for ( ; GET_SIZE(HDRP(rover)) > 0; rover = NEXT_BLKP(rover)) {
+        if (!GET_ALLOC(HDRP(rover)) && (asize <= GET_SIZE(HDRP(rover)))) {
+            return rover;
+        }
+    }
+
+    /* Searching from start of list to old rover */
+    for (rover = heap_listp; rover < oldrover; rover = NEXT_BLKP(rover)) {
+        if (!GET_ALLOC(HDRP(rover)) && (asize <= GET_SIZE(HDRP(rover)))) {
+            return rover;
+        }
+    }
+
+    return NULL;  /* In case of no fit found */
+}
+
+/* place - Place block of asize bytes at start of free block bp and split if remainder is at least minimum block size */
+static void place(void *bp, size_t asize) {
+    size_t csize = GET_SIZE(HDRP(bp));
+
+    if ((csize - asize) >= (2 * DSIZE)) { /* Minimum block size is 16 bytes */
+        PUT(HDRP(bp), PACK(asize, 1));
+        PUT(FTRP(bp), PACK(asize, 1));
+        bp = NEXT_BLKP(bp);
+        PUT(HDRP(bp), PACK(csize - asize, 0));
+        PUT(FTRP(bp), PACK(csize - asize, 0));
+    } else {
+        /* Not enough room to split, allocate the whole block */
+        PUT(HDRP(bp), PACK(csize, 1));
+        PUT(FTRP(bp), PACK(csize, 1));
+    }
+}
+
+/* mm_malloc - Allocate a block by incrementing the brk pointer. Always allocate a block whose size is a multiple of the alignment. */
+void *mm_malloc(size_t size) {
+    size_t asize;      /* Adjusted block size */
+    size_t extendsize; /* Amount to extend heap if no fit */
+    char *bp;
+
+    if (size == 0) {
+        return NULL;
+    }
+
+    /* Adjust block size to include overhead and alignment requirements. */
+    if (size <= DSIZE) {
+        asize = 2 * DSIZE; /* 16 bytes: 8 payload + 4 hdr + 4 ftr */
+    } else {
+        /* Add overhead (DSIZE) and round up to nearest multiple of DSIZE */
+        asize = DSIZE * ((size + (DSIZE) + (DSIZE-1)) / DSIZE);
+    }
+
+    /* Search the free list for a fit */
+    if ((bp = find_fit(asize)) != NULL) {
+        place(bp, asize);
+        return bp;
+    }
+
+    /* No fit found. Get more memory and place the block */
+    extendsize = MAX(asize, CHUNKSIZE);
+    if ((bp = extend_heap(extendsize / WSIZE)) == NULL) {
+        return NULL;
+    }
+    place(bp, asize);
     return bp;
 }
 
