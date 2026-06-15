@@ -6,7 +6,7 @@ A collection of custom memory allocators written in C, built to explore heap man
 
 At the core of every operating system and user-space application is memory management. The standard `libc` implementations of `malloc`, `free`, and `realloc` are highly optimized black boxes. This repository breaks open that black box, trying to build the rules of the black box from scratch. 
 
-These projects explore the trade-offs in memory allocator design, from managing block headers and mitigating fragmentation (internal and external) to handling the complexities of lock contention in multi-threaded environments. By taking control of the heap space (via system calls like `sbrk` & `mmap`), these allocators demonstrate the fundamental mechanics of dynamic memory.
+This project explored the trade-offs in memory allocator design, from managing block headers and mitigating fragmentation (internal and external) to handling the complexities of lock contention in multi-threaded environments. By taking control of the heap space (via system calls like `sbrk` & `mmap`), these allocators demonstrate the fundamental mechanics of dynamic memory.
 
 ## 📂 Implementations
 
