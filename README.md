@@ -4,9 +4,9 @@ A collection of custom memory allocators written in C, built to explore heap man
 
 ## 📖 Background & Theory
 
-At the core of every operating system and user-space application is memory management. The standard `libc` implementations of `malloc`, `free`, and `realloc` are highly optimized black boxes. This repository breaks open that black box. 
+At the core of every operating system and user-space application is memory management. The standard `libc` implementations of `malloc`, `free`, and `realloc` are highly optimized black boxes. This repository breaks open that black box, trying to build the rules of the black box from scratch. 
 
-These projects explore the trade-offs in memory allocator design, from managing block headers and mitigating fragmentation (internal and external) to handling the complexities of lock contention in multi-threaded environments. By taking control of the heap space (via system calls like `sbrk` or `mmap`), these allocators demonstrate the fundamental mechanics of dynamic memory.
+These projects explore the trade-offs in memory allocator design, from managing block headers and mitigating fragmentation (internal and external) to handling the complexities of lock contention in multi-threaded environments. By taking control of the heap space (via system calls like `sbrk` & `mmap`), these allocators demonstrate the fundamental mechanics of dynamic memory.
 
 ## 📂 Implementations
 
@@ -16,10 +16,4 @@ This repository is structured into distinct allocator models, scaling from found
 * **[Multi-Thread Caching](./multi_thread_caching):** *(Work in Progress)* An advanced, thread-safe allocator designed to minimize lock contention. It implements thread-local caching mechanisms and mutexes to efficiently handle concurrent allocation requests without bottlenecking performance.
 
 ## ⚙️ Compilation & Usage
-
-*(Add your instructions here on how someone would compile this. For example:)*
-To compile the allocators, navigate to the specific directory and run `make`:
-
-```bash
-cd implicit_free_list
-make
+All the implementation and testing steps are specified in the respective subdirectories's `README.md`.
