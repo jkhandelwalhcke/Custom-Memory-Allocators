@@ -20,7 +20,6 @@ gcc -o test_allocator allocator.c
 ```
 ### 2. The LD_PRELOAD method (Advanced)
 This is basically a step where you let this allocator run the operating system's execution, basically handing it over the controls.
-
 First we load the program code into a shared object file.
 Then, the next step is to use LD_PRELOAD to run a regular system command by calling that specific shared object file. 
 ```
@@ -29,3 +28,4 @@ LD_PRELOAD=./implicit_free_list.so ls
 ```
 What this does is that it tells the system to utilize the specific program rather than the generally utilized and highly optimized `glibc` allocator.
 It is advised that you do not run a lot of commands or specificallt targeting commands using this method, if you wanna save yourself a segmentation fault `SEGSEGV` or two.
+Though, oonce again, it is advised that this allocator is not suitable for running operating systems even nearly close to what we have today. 
