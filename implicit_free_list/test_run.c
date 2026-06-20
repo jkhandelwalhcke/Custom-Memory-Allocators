@@ -19,7 +19,6 @@ void debug_heap() {
         // (Cast to char* to step by exact bytes, then cast back)
         current = (block_header *)((char *)current + current->size);
     }
-    */
     
     printf("--------------------------\n\n");
 }
