@@ -1,3 +1,26 @@
+# Custom Memory Allocator: Implicit Free List
+## Overview 
+This repository contains a custom implementation of a dynamic memory allocator (`malloc`, `free`, and `realloc`) written in C. It bypasses the standard `libc` allocator to directly manage heap memory using `sbrk()`.
+The primary goal of this project is to understand low-level systems architecture, memory hierarchies, and the explicit management of heap fragmentation.
+
+## Architecture & Design Choices
+The allocator manages memory using an implicit free list with boundary tag coalescing.
+
+### Memory block layout : 
+To ensure compatibility and performance, the allocator enforces strict 8-byte double-word alignment for all payloads.
+Each memory block consists of:
+- *Header (4 bytes / 1 Word)*: Encodes the total block size and an allocated/free status bit in the lowest-order bit.
+- *Payload*: The actual memory returned to the user.
+- *Padding*: Optional, used to maintain the 8-byte alignment requirement.
+- *Footer (4 bytes / 1 Word)*: An exact copy of the header, allowing constant-time bidirectional traversal of the heap.
+- *Minimum Block Size*: 16 bytes (4-byte header + 8-byte minimum payload + 4-byte footer).  
+
+### Core Algorithms used :  
+- *Placement policy : Next-Fit Search*
+- *Coalescing : Immediate*
+- *Block Splitting : Dynamic splitting of blocks if requested is lower than the selected block.*
+
+
 ## A gentle note :
 Since an implicit free list allocator is not exactly made with the intentions of handling full scale operating systems, at least not in the modern times, it is not expected for it to perform exceptionally high on any benchmark.
 
