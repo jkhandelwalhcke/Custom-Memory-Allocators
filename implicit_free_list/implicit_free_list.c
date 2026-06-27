@@ -66,7 +66,7 @@ int mm_init(void) {
     return 0;
 }
 
-//Here, we also declare an extensoion function, since we may need to ask for more memory from the heap.
+//Here, we declare an extension function, since we may need to ask for more memory from the heap.
 /* extend_heap - Extend heap with free block and return its block pointer */
 static void *extend_heap(size_t words) {
     char *bp;
