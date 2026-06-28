@@ -24,3 +24,7 @@ int get_size_index(size_t request){
 
     return __builtin_ctz(request) - 4;
 }
+
+struct Block{
+ struct Block* next;
+}
