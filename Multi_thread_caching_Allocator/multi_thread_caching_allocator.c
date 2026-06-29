@@ -52,3 +52,12 @@ void* fetch_from_os(size_t size){
 
     return mmap_ptr;
 }
+
+// Function to initialize the memory to lock free array. 
+void init_allocator(){
+    for(int i = 0; i<NUM_CLASSES; i++){
+        pthread_mutex_init(&central_locks[i], NULL);
+    }
+}
+
+
