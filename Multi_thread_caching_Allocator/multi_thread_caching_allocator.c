@@ -1,9 +1,18 @@
 #include <stdio.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <pthread.h>
+
+#define NUM_CLASSES 11
 
 // Declaring bucket sizes upto 16kb
 const size_t size_classes[] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096,8192, 16384};
 
 // Fuction to lookup size of bucket from request
+struct Block* central_cache[NUM_CLASSES] = {NULL};
+pthread_mutex_t central_locks[NUM_CLASSES];
+
+
 int get_size_index(size_t request){
  
     if(request>16384){
