@@ -1,7 +1,9 @@
 #include <stdio.h>
 
+// Declaring bucket sizes upto 16kb
 const size_t size_classes[] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096,8192, 16384};
 
+// Fuction to lookup size of bucket from request
 int get_size_index(size_t request){
  
     if(request>16384){
@@ -25,6 +27,19 @@ int get_size_index(size_t request){
     return __builtin_ctz(request) - 4;
 }
 
+// Structure to maintain links to allocated blocks
 struct Block{
  struct Block* next;
+}
+
+// This function fetches the raw memory blocks from the OS, which can then be passed on to the central heap. 
+// Utilizes mmap, with flags that specify read/write memory and for the private/anonymous mamory declaration.
+void* fetch_from_os(size_t size){
+    void* mmap_ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    if(mmap_ptr == MAP_FAILED ){
+        return NULL;
+    }
+
+    return mmap_ptr;
 }
