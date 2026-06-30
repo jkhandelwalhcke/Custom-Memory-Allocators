@@ -8,9 +8,10 @@
 // Declaring bucket sizes upto 16kb
 const size_t size_classes[] = {16, 32, 64, 128, 256, 512, 1024, 2048, 4096,8192, 16384};
 
-// Fuction to lookup size of bucket from request
-struct Block* central_cache[NUM_CLASSES] = {NULL};
+// Mutex lock for the individual threads that the freed memory would have, so that threads looking for a same memory cache, it hits that mutex lock, and waits in que till the lock is opened when A opens up....
 pthread_mutex_t central_locks[NUM_CLASSES];
+
+// array to hold pointers to the requested and achieved memory chucks of stoen.. This also keeps sureity that 
 
 
 int get_size_index(size_t request){
