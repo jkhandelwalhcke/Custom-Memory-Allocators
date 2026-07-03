@@ -72,19 +72,13 @@ void refill_central_cache(int class_idx) {
     }
 
     char* mem_ptr = (char*)raw_mem;
-
     int num_blocks = chunk_size / block_size;
 
     for (int i = 0; i < num_blocks; i++) {
         
         char* current_addr = mem_ptr + (i * block_size);
-        
         struct Block* block = (struct Block*)current_addr;
-        
         block->next = central_cache[class_idx];
-        
         central_cache[class_idx] = block;
     }
 }
-
-
