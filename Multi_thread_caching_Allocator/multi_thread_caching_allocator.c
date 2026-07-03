@@ -61,4 +61,30 @@ void init_allocator(){
     }
 }
 
+void refill_central_cache(int class_idx) {
+
+    size_t block_size = size_classes[class_idx];
+    size_t chunk_size = 64 * 1024;
+    void* raw_mem = fetch_from_os(chunk_size);
+
+    if (raw_mem == NULL) {
+        return; 
+    }
+
+    char* mem_ptr = (char*)raw_mem;
+
+    int num_blocks = chunk_size / block_size;
+
+    for (int i = 0; i < num_blocks; i++) {
+        
+        char* current_addr = mem_ptr + (i * block_size);
+        
+        struct Block* block = (struct Block*)current_addr;
+        
+        block->next = central_cache[class_idx];
+        
+        central_cache[class_idx] = block;
+    }
+}
+
 
