@@ -81,3 +81,24 @@ void refill_central_cache(int class_idx) {
         central_cache[class_idx] = block;
     }
 }
+
+void* my_malloc(size_t size){
+
+    int idx = get_size_index(size);
+    if(idx == -1){
+        void* ptr = malloc(size);
+        return ptr;
+    }
+
+    if(thread_cache[idx] != NULL){
+        //Yet to implement the popping thing...
+    }
+
+    pthread_mutex_lock(&central_cache[idx]);
+    if(central_cache[idx] == NULL){
+        refill_central_cache(idx);
+        //yet to write the division of block, and pushing them into the thread_cache
+        pthread_mutex_unlock(&central_cache[idx]);
+    }
+
+}
