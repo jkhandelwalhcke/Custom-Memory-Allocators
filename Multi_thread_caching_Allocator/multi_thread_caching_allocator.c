@@ -102,8 +102,25 @@ void* my_malloc(size_t size){
     pthread_mutex_lock(&central_cache[idx]);
     if(central_cache[idx] == NULL){
         refill_central_cache(idx);
-        //yet to write the division of block, and pushing them into the thread_cache
-        pthread_mutex_unlock(&central_cache[idx]);
+    }
+    
+    struct Block* block_to_return = NULL;
+    int batch_count = 0;
+
+    while (central_cache[idx] != NULL){
+        struct Block* current = central_cache[idx];
+        central_cache[idx] = central_cache[idx]->next;
+        
+        if(batch_count == 0){
+            block_to_return = current;
+        }
+        else{
+            current->next = thread_cache[idx];
+            thread_cache[idx] = current;
+        }      
+        batch_count++;
     }
 
+    pthread_mutex_unlock(&central_locks[idx]);
+    return block_to_return; 
 }
