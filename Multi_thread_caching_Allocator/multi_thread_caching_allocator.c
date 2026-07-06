@@ -86,7 +86,10 @@ void* my_malloc(size_t size){
 
     int idx = get_size_index(size);
     if(idx == -1){
-        void* ptr = malloc(size);
+        void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        if(ptr == MAP_FAILED){
+            return NULL;
+        }
         return ptr;
     }
 
