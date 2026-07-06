@@ -94,7 +94,9 @@ void* my_malloc(size_t size){
     }
 
     if(thread_cache[idx] != NULL){
-        //Yet to implement the popping thing...
+        struct Block* block = thread_cache[idx];
+        thread_cache[idx] = thread_cache[idx]->next;
+        return block;
     }
 
     pthread_mutex_lock(&central_cache[idx]);
