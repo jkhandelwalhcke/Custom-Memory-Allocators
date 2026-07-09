@@ -96,7 +96,7 @@ void* my_malloc(size_t size){
         return ptr;
     }
 
-    struct Block* block_to_return = NULL; // Change
+    struct Block* block_to_return = NULL; 
 
     if(thread_cache[idx] != NULL){
         struct Block* block = thread_cache[idx];
