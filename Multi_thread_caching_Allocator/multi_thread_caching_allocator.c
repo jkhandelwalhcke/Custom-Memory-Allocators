@@ -87,6 +87,7 @@ void* my_malloc(size_t size){
 
     size += 8;
     int idx = get_size_index(size);
+    
     if(idx == -1){
         void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
         if(ptr == MAP_FAILED){
@@ -95,35 +96,42 @@ void* my_malloc(size_t size){
         return ptr;
     }
 
+    struct Block* block_to_return = NULL; // Change
+
     if(thread_cache[idx] != NULL){
         struct Block* block = thread_cache[idx];
         thread_cache[idx] = thread_cache[idx]->next;
         return block;
     }
 
-    pthread_mutex_lock(&central_cache[idx]);
-    if(central_cache[idx] == NULL){
-        refill_central_cache(idx);
-    }
-    
-    struct Block* block_to_return = NULL;
-    int batch_count = 0;
-    int MAX_BATCH = 20;
-
-    while (central_cache[idx] != NULL && batch_count < MAX_BATCH){
-        struct Block* current = central_cache[idx];
-        central_cache[idx] = central_cache[idx]->next;
+    else {
+        pthread_mutex_lock(&central_locks[idx]); 
         
-        if(batch_count == 0){
-            block_to_return = current;
+        if(central_cache[idx] == NULL) {
+            refill_central_cache(idx);
         }
-        else{
-            current->next = thread_cache[idx];
-            thread_cache[idx] = current;
-        }      
-        batch_count++;
+
+        int batch_count = 0;
+        while (central_cache[idx] != NULL && batch_count < 20) {
+            struct Block* current = central_cache[idx];
+            central_cache[idx] = central_cache[idx]->next;
+            
+            if(batch_count == 0) {
+                block_to_return = current;
+            } else {
+                current->next = thread_cache[idx];
+                thread_cache[idx] = current;
+            }      
+            batch_count++;
+        } 
+         
+        pthread_mutex_unlock(&central_locks[idx]); 
     }
 
-    pthread_mutex_unlock(&central_locks[idx]);
-    return block_to_return; 
+    if (block_to_return != NULL) {
+        size_t* header = (size_t*)block_to_return;
+        *header = idx;
+        return (void*)((char*)block_to_return + 8);
+    } 
+    return NULL;
 }
