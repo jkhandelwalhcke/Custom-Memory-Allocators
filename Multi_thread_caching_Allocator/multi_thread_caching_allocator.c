@@ -107,8 +107,9 @@ void* my_malloc(size_t size){
     
     struct Block* block_to_return = NULL;
     int batch_count = 0;
+    int MAX_BATCH = 20;
 
-    while (central_cache[idx] != NULL){
+    while (central_cache[idx] != NULL && batch_count < MAX_BATCH){
         struct Block* current = central_cache[idx];
         central_cache[idx] = central_cache[idx]->next;
         
