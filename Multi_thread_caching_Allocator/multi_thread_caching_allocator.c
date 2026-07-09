@@ -85,6 +85,7 @@ void refill_central_cache(int class_idx) {
 
 void* my_malloc(size_t size){
 
+    size += 8;
     int idx = get_size_index(size);
     if(idx == -1){
         void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
