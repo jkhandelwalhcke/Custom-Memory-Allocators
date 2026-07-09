@@ -135,3 +135,23 @@ void* my_malloc(size_t size){
     } 
     return NULL;
 }
+
+void my_free(void* ptr){
+
+    if(ptr == NULL){
+        return;
+    }
+
+    char* real_start = (char*)ptr - 8;
+    size_t* header = (size_t*)real_start;
+    int idx = *header;
+
+    if(idx == -1){
+        return;
+    }
+
+    struct Block* block = (struct Block*) real_start;
+    block->next = thread_cache[idx];
+    thread_cache[idx] = block;
+}
+
