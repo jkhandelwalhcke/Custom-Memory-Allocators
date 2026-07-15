@@ -26,12 +26,20 @@ Tested against standard `glibc` `malloc` with 100,000 allocations per thread. Wh
 
 This project uses standard GNU Make for compilation. The provided Makefile is configured to compile the testing suite with `-pthread` for concurrency support and `-O3` for maximum performance optimization.
 
-### 1. Compiling the Project
-To compile the allocator and the benchmark suite, simply navigate to the project directory and run:
+**To compile the allocator and the benchmark suite, simply navigate to the project directory and run:**
 
 ```bash
 make
 ```
+**To run the benchmarks:**
+```bash
+./tes_file #Where the test file is the file you make for the benchmarking tests
+```
+**To clean the compiled files**
+```bash
+make clean
+```
+
 ## Future Optimizations
 
 * Refine the single-threaded fast-path to close the baseline latency gap with `glibc`.
