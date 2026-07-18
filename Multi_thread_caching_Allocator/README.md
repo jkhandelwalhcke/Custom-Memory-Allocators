@@ -33,7 +33,7 @@ make
 ```
 **To run the benchmarks:**
 ```bash
-./tes_file #Where the test file is the file you make for the benchmarking tests
+./test_file #Where the test file is the file you make for the benchmarking tests
 ```
 **To clean the compiled files**
 ```bash
